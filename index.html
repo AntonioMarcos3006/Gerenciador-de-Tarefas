@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nimbus &mdash; Gerenciador de Tarefas</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="loader" class="loader">
+  <div class="loader-inner">
+    <div class="loader-logo"><i class="fa-solid fa-layer-group"></i></div>
+    <div class="loader-bar"><span></span></div>
+    <p>Carregando o seu espaço de trabalho&hellip;</p>
+  </div>
+</div>
+
+<div id="app" class="app hidden">
+
+  
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+      <div class="brand">
+        <div class="brand-mark"><i class="fa-solid fa-layer-group"></i></div>
+        <span class="brand-name">Nimbus</span>
+      </div>
+      <button class="icon-btn sidebar-toggle" id="sidebarToggle" title="Recolher menu" aria-label="Recolher menu">
+        <i class="fa-solid fa-angles-left"></i>
+      </button>
+    </div>
+
+    <button class="btn btn-primary btn-new-board" id="btnNewBoard">
+      <i class="fa-solid fa-plus"></i><span>Novo quadro</span>
+    </button>
+
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" data-view="boards">
+        <i class="fa-solid fa-table-cells-large"></i><span>Quadros</span>
+      </a>
+      <a href="#" class="nav-item" data-view="dashboard">
+        <i class="fa-solid fa-chart-pie"></i><span>Dashboard</span>
+      </a>
+      <a href="#" class="nav-item" data-view="calendar">
+        <i class="fa-solid fa-calendar-days"></i><span>Calendário</span>
+      </a>
+      <a href="#" class="nav-item" data-view="favorites">
+        <i class="fa-solid fa-star"></i><span>Favoritos</span>
+      </a>
+      <a href="#" class="nav-item" data-view="history">
+        <i class="fa-solid fa-clock-rotate-left"></i><span>Histórico</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-section-title"><span>Meus quadros</span></div>
+    <div class="sidebar-board-list" id="sidebarBoardList"></div>
+
+    <div class="sidebar-bottom">
+      <button class="nav-item" id="btnSettings">
+        <i class="fa-solid fa-gear"></i><span>Configurações</span>
+      </button>
+    </div>
+  </aside>
+
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  
+  <div class="main">
+
+    
+    <header class="topbar">
+      <button class="icon-btn only-mobile" id="mobileMenuBtn" aria-label="Abrir menu">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+
+      <div class="search-wrap">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" id="searchInput" placeholder="Pesquisar tarefas, etiquetas, responsáveis…">
+        <kbd class="search-kbd">/</kbd>
+      </div>
+
+      <div class="topbar-actions">
+        <button class="icon-btn" id="themeToggle" title="Alternar tema" aria-label="Alternar tema">
+          <i class="fa-solid fa-moon"></i>
+        </button>
+        <button class="icon-btn" id="notifBtn" title="Notificações" aria-label="Notificações">
+          <i class="fa-regular fa-bell"></i>
+        </button>
+        <button class="icon-btn" id="shortcutsBtn" title="Atalhos de teclado" aria-label="Atalhos">
+          <i class="fa-regular fa-keyboard"></i>
+        </button>
+        <div class="user-chip" id="userChip">
+          <div class="avatar avatar-grad">CM</div>
+          <div class="user-meta">
+            <span class="user-name">Camila Moraes</span>
+            <span class="user-role">Product Lead</span>
+          </div>
+          <i class="fa-solid fa-chevron-down"></i>
+        </div>
+      </div>
+    </header>
+
+    
+    <section class="view" id="view-boards-list">
+      <div class="view-header">
+        <div>
+          <h1>Seus quadros</h1>
+          <p class="muted">Organize projetos, equipes e fluxos de trabalho em um só lugar.</p>
+        </div>
+        <button class="btn btn-primary" id="btnNewBoard2"><i class="fa-solid fa-plus"></i> Novo quadro</button>
+      </div>
+      <div class="boards-grid" id="boardsGrid"></div>
+    </section>
+
+    
+    <section class="view hidden" id="view-board">
+      <div class="board-header" id="boardHeader">
+        
+      </div>
+
+      <div class="board-toolbar">
+        <div class="filter-chips" id="filterChips">
+          <button class="chip" data-filter="priority"><i class="fa-solid fa-bolt"></i> Prioridade <i class="fa-solid fa-caret-down"></i></button>
+          <button class="chip" data-filter="label"><i class="fa-solid fa-tag"></i> Etiquetas <i class="fa-solid fa-caret-down"></i></button>
+          <button class="chip" data-filter="assignee"><i class="fa-solid fa-user"></i> Responsável <i class="fa-solid fa-caret-down"></i></button>
+          <button class="chip" data-filter="status"><i class="fa-solid fa-circle-check"></i> Status <i class="fa-solid fa-caret-down"></i></button>
+          <button class="chip" id="chipFavOnly"><i class="fa-regular fa-star"></i> Favoritos</button>
+          <button class="chip chip-clear" id="chipClear" title="Limpar filtros"><i class="fa-solid fa-xmark"></i> Limpar</button>
+        </div>
+        <div class="filter-popover hidden" id="filterPopover"></div>
+      </div>
+
+      <div class="board-columns" id="boardColumns"></div>
+    </section>
+
+    
+    <section class="view hidden" id="view-dashboard">
+      <div class="view-header">
+        <div>
+          <h1>Dashboard</h1>
+          <p class="muted">Visão geral de todas as tarefas em todos os quadros.</p>
+        </div>
+      </div>
+
+      <div class="stats-grid" id="statsGrid"></div>
+
+      <div class="dash-charts">
+        <div class="card-panel">
+          <h3>Progresso geral</h3>
+          <div class="ring-wrap" id="ringWrap"></div>
+        </div>
+        <div class="card-panel">
+          <h3>Tarefas por prioridade</h3>
+          <div class="bar-chart" id="barChartPriority"></div>
+        </div>
+        <div class="card-panel">
+          <h3>Tarefas por coluna</h3>
+          <div class="bar-chart" id="barChartColumn"></div>
+        </div>
+      </div>
+    </section>
+
+    
+    <section class="view hidden" id="view-calendar">
+      <div class="view-header">
+        <div>
+          <h1>Calendário</h1>
+          <p class="muted">Acompanhe prazos, entregas próximas e tarefas atrasadas.</p>
+        </div>
+        <div class="cal-nav">
+          <button class="icon-btn" id="calPrev"><i class="fa-solid fa-chevron-left"></i></button>
+          <span id="calLabel" class="cal-label"></span>
+          <button class="icon-btn" id="calNext"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+      </div>
+      <div class="calendar-grid" id="calendarGrid"></div>
+    </section>
+
+    
+    <section class="view hidden" id="view-favorites">
+      <div class="view-header">
+        <div>
+          <h1>Favoritos</h1>
+          <p class="muted">Quadros e tarefas marcados com estrela.</p>
+        </div>
+      </div>
+      <h3 class="subhead">Quadros favoritos</h3>
+      <div class="boards-grid" id="favBoardsGrid"></div>
+      <h3 class="subhead">Tarefas favoritas</h3>
+      <div class="cards-list" id="favCardsList"></div>
+    </section>
+
+    
+    <section class="view hidden" id="view-history">
+      <div class="view-header">
+        <div>
+          <h1>Histórico de alterações</h1>
+          <p class="muted">Tudo o que aconteceu recentemente nos seus quadros.</p>
+        </div>
+        <button class="btn btn-ghost" id="btnClearHistory"><i class="fa-solid fa-trash"></i> Limpar histórico</button>
+      </div>
+      <div class="timeline" id="historyTimeline"></div>
+    </section>
+
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<button class="back-to-top hidden" id="backToTop" aria-label="Voltar ao topo">
+  <i class="fa-solid fa-arrow-up"></i>
+</button>
+
+<div class="modal-overlay hidden" id="modalBoard">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="boardModalTitle">Novo quadro</h2>
+      <button class="icon-btn modal-close" data-close="modalBoard"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="boardId">
+      <label class="field-label">Nome do quadro</label>
+      <input type="text" id="boardName" class="text-input" placeholder="Ex: Lançamento App Mobile" maxlength="60">
+
+      <label class="field-label">Descrição</label>
+      <textarea id="boardDesc" class="text-input" rows="2" placeholder="Sobre o que é este quadro?"></textarea>
+
+      <label class="field-label">Ícone</label>
+      <div class="icon-picker" id="boardIconPicker"></div>
+
+      <label class="field-label">Cor</label>
+      <div class="color-picker" id="boardColorPicker"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-close="modalBoard">Cancelar</button>
+      <button class="btn btn-primary" id="btnSaveBoard">Salvar quadro</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="modalColumn">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h2 id="columnModalTitle">Nova coluna</h2>
+      <button class="icon-btn modal-close" data-close="modalColumn"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="columnId">
+      <label class="field-label">Nome da coluna</label>
+      <input type="text" id="columnName" class="text-input" placeholder="Ex: Em testes" maxlength="30">
+      <label class="field-label">Cor</label>
+      <div class="color-picker" id="columnColorPicker"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-close="modalColumn">Cancelar</button>
+      <button class="btn btn-primary" id="btnSaveColumn">Salvar coluna</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="modalCard">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div class="card-modal-title-wrap">
+        <i class="fa-regular fa-rectangle-list"></i>
+        <input type="text" id="cardTitle" class="title-input" placeholder="Título da tarefa" maxlength="120">
+      </div>
+      <button class="icon-btn modal-close" data-close="modalCard"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body card-modal-body">
+      <input type="hidden" id="cardId">
+      <input type="hidden" id="cardColumnId">
+
+      <div class="card-modal-grid">
+        <div class="card-modal-main">
+
+          <label class="field-label">Descrição</label>
+          <textarea id="cardDesc" class="text-input" rows="3" placeholder="Adicione uma descrição mais detalhada…"></textarea>
+
+          <label class="field-label">Checklist</label>
+          <div class="checklist" id="cardChecklist"></div>
+          <button class="btn btn-ghost btn-sm" id="btnAddChecklistItem"><i class="fa-solid fa-plus"></i> Adicionar item</button>
+
+          <label class="field-label">Comentários</label>
+          <div class="comments-list" id="cardComments"></div>
+          <div class="comment-input-row">
+            <div class="avatar avatar-sm avatar-grad">CM</div>
+            <input type="text" id="newCommentInput" class="text-input" placeholder="Escreva um comentário…">
+            <button class="icon-btn" id="btnAddComment"><i class="fa-solid fa-paper-plane"></i></button>
+          </div>
+
+          <label class="field-label">Anexos</label>
+          <div class="attachments-list" id="cardAttachments"></div>
+          <button class="btn btn-ghost btn-sm" id="btnAddAttachment"><i class="fa-solid fa-paperclip"></i> Anexar arquivo (simulado)</button>
+        </div>
+
+        <div class="card-modal-side">
+          <label class="field-label">Status</label>
+          <select id="cardStatus" class="text-input">
+            <option value="pendente">Pendente</option>
+            <option value="andamento">Em andamento</option>
+            <option value="revisao">Em revisão</option>
+            <option value="concluido">Concluído</option>
+          </select>
+
+          <label class="field-label">Prioridade</label>
+          <select id="cardPriority" class="text-input">
+            <option value="urgente">🔴 Urgente</option>
+            <option value="alta">🟠 Alta</option>
+            <option value="media" selected>🟡 Média</option>
+            <option value="baixa">🟢 Baixa</option>
+          </select>
+
+          <label class="field-label">Categoria</label>
+          <input type="text" id="cardCategory" class="text-input" placeholder="Ex: Design, Backend…">
+
+          <label class="field-label">Responsável</label>
+          <select id="cardAssignee" class="text-input"></select>
+
+          <label class="field-label">Data de entrega</label>
+          <input type="date" id="cardDueDate" class="text-input">
+
+          <label class="field-label">Etiquetas</label>
+          <div class="label-picker" id="cardLabelPicker"></div>
+          <div class="label-chips" id="cardLabelChips"></div>
+
+          <div class="card-meta-info" id="cardMetaInfo"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer card-modal-footer">
+      <button class="btn btn-ghost" id="btnDuplicateCard"><i class="fa-regular fa-copy"></i> Duplicar</button>
+      <button class="btn btn-danger-ghost" id="btnDeleteCard"><i class="fa-regular fa-trash-can"></i> Excluir</button>
+      <div class="spacer"></div>
+      <button class="btn btn-ghost" data-close="modalCard">Fechar</button>
+      <button class="btn btn-primary" id="btnSaveCard">Salvar tarefa</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="modalConfirm">
+  <div class="modal modal-xs">
+    <div class="modal-body confirm-body">
+      <div class="confirm-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+      <h3 id="confirmTitle">Tem certeza?</h3>
+      <p id="confirmText" class="muted">Esta ação não pode ser desfeita.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-close="modalConfirm">Cancelar</button>
+      <button class="btn btn-danger" id="btnConfirmAction">Excluir</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="modalSettings">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h2>Configurações</h2>
+      <button class="icon-btn modal-close" data-close="modalSettings"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="setting-row">
+        <div>
+          <strong>Tema escuro</strong>
+          <p class="muted">Alterne entre tema claro e escuro.</p>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="settingsThemeSwitch">
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="setting-row">
+        <div>
+          <strong>Notificações</strong>
+          <p class="muted">Receber alertas de atividades do quadro.</p>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="settingsNotifSwitch" checked>
+          <span class="slider"></span>
+        </label>
+      </div>
+      <div class="setting-row">
+        <div>
+          <strong>Limpar todos os dados</strong>
+          <p class="muted">Remove quadros, tarefas e histórico salvos.</p>
+        </div>
+        <button class="btn btn-danger-ghost btn-sm" id="btnResetData">Limpar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="modalShortcuts">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h2>Atalhos de teclado</h2>
+      <button class="icon-btn modal-close" data-close="modalShortcuts"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-body">
+      <div class="shortcut-row"><kbd>/</kbd><span>Focar na pesquisa</span></div>
+      <div class="shortcut-row"><kbd>N</kbd><span>Novo quadro</span></div>
+      <div class="shortcut-row"><kbd>Esc</kbd><span>Fechar modal</span></div>
+      <div class="shortcut-row"><kbd>T</kbd><span>Alternar tema</span></div>
+    </div>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
